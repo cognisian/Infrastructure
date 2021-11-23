@@ -3,7 +3,7 @@ terraform {
  	required_providers {
 		google = {
 			source = "hashicorp/google"
-			version = "3.5.0"
+			version = ">= 4.0.0"
 		}
 	}
 }
@@ -13,19 +13,26 @@ provider "google" {
 	
 	project = var.project_name
 	
-	region  = var.gcloud_region
-	zone    = var.gcloud_zone
+	region  = var.gcloud_regions.toronto
+	zone    = "${var.gcloud_regions.toronto}-${var.gcloud_zones[0]}"
+}
+
+data "google_compute_image" "ubuntu" {
+    family = "ubuntu-minimal-2110"
+    project = "ubuntu-os-cloud"
 }
 
 resource "google_compute_address" "static" {
-    name = "ipv4-address"
+    name = "ext-ipv4-address"
 }
 
 resource "google_compute_instance" "web_instance" {
 	provider = google
 	
+	count = 1
+	
 	name = "webserver"
-	machine_type = "f1-micro"
+	machine_type = var.gcloud_machine_types[0]
     
 	labels = {
 		environment = "prod"
@@ -35,41 +42,18 @@ resource "google_compute_instance" "web_instance" {
 	
 	boot_disk {
 		initialize_params {
-			image = "debian-cloud/debian-9"
+			image = data.google_compute_image.ubuntu.self_link
 		}
 	}
 
 	network_interface {
-		# A default network is created for all GCP projects
 		network = "default"
 		access_config {
             nat_ip = google_compute_address.static.address
    		}
 	}
-}
-
-resource "google_compute_instance" "mon_instance" {
-	provider = google
 	
-	name = "monitor"
-	machine_type = "f1-micro"
-    
-	labels = {
-		environment = "prod"
-	}
-	
-	tags = ["prod", "monitor"]
-	
-	boot_disk {
-		initialize_params {
-			image = "debian-cloud/debian-9"
-		}
-	}
-
-	network_interface {
-		# A default network is created for all GCP projects
-		network = "default"
-		access_config {
-   		}
-	}
+	metadata = {
+        ssh-keys = "${var.ssh_user}:file(${var.ssh_pub_key_file})"
+    }
 }
