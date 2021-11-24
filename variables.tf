@@ -14,7 +14,7 @@ variable "gcloud_creds" {
 
 variable "project_name" {
 	description = "The project name to contain resources"
-	default = ""
+	default = "cognisian-site"
 }
 
 variable "billing_acct" {
@@ -30,6 +30,13 @@ variable "ssh_user" {
 variable "ssh_pub_key_file" {
     description = "The public key file to copy to Google compute instance"
     default = ""
+    sensitive = true
+}
+
+variable "ssh_pvt_key_file" {
+    description = "The private key file to use to connect to Google compute instance"
+    default = ""
+    sensitive = true
 }
 
 variable "gcloud_regions" {

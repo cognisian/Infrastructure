@@ -1,5 +1,5 @@
 terraform {
-    required_version = ">= 0.14.0"
+    required_version = ">= 1.0.0"
     required_providers {
         google = {
             source = "hashicorp/google"
@@ -24,15 +24,34 @@ data "google_compute_image" "ubuntu" {
 
 resource "google_compute_address" "static" {
     name = "ext-ipv4-address"
+    address_type = "EXTERNAL"
+}
+
+resource "google_compute_firewall" "default" {
+    name    = "web-firewall"
+    network = "default"
+
+    allow {
+        protocol = "icmp"
+    }
+
+    allow {
+        protocol = "tcp"
+        ports    = ["80", "443", "8080"]
+    }
+
+    source_ranges = ["0.0.0.0/0"]
+    target_tags = ["web"]
 }
 
 resource "google_compute_instance" "webserver_instance" {
     provider = google
+    allow_stopping_for_update = true
     
     count = 1
     
     name = "webserver"
-    machine_type = var.gcloud_machine_types[0]
+    machine_type = var.gcloud_machine_types[1]
     
     labels = {
         environment = "prod"
@@ -54,23 +73,17 @@ resource "google_compute_instance" "webserver_instance" {
     }
     
     metadata = {
-        ssh-keys = "${var.ssh_user}:file(${var.ssh_pub_key_file})"
-    }
+        ssh-keys = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
+    }  
 }
 
-resource "google_compute_firewall" {
-    name    = "web-firewall"
-    network = "default"
-
-    allow {
-        protocol = "icmp"
-    }
-
-    allow {
-        protocol = "tcp"
-        ports    = ["80", "443", "8080"]
-    }
-
-    source_ranges = ["0.0.0.0/0"]
-    target_tags = ["web"]
+/**
+  * Generate an ansible inventory
+  */
+resource "local_file" "ansible_inventory" {
+    content = templatefile("templates/inventory.tmpl", {
+        ip = google_compute_address.static.address
+    })
+    filename = format("%s/%s", abspath(path.root), "provision/inventory.yaml")
 }
+
