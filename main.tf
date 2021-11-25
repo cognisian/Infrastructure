@@ -3,7 +3,7 @@ terraform {
     required_providers {
         google = {
             source = "hashicorp/google"
-            version = ">= 4.0.0"
+            version = "~> 4.0.0"
         }
     }
 }
@@ -44,7 +44,7 @@ resource "google_compute_firewall" "default" {
     target_tags = ["web"]
 }
 
-resource "google_compute_instance" "webserver_instance" {
+resource "google_compute_instance" "webservers" {
     provider = google
     allow_stopping_for_update = true
     
@@ -80,10 +80,11 @@ resource "google_compute_instance" "webserver_instance" {
 /**
   * Generate an ansible inventory
   */
-resource "local_file" "ansible_inventory" {
-    content = templatefile("templates/inventory.tmpl", {
-        ip = google_compute_address.static.address
+resource "local_file" "gce_inventory" {
+    content = templatefile("templates/gce_inventory.tmpl", {
+        ip = google_compute_address.static.address,
+        ssh_user = var.ssh_user,
+        ssh_keyfile = var.ssh_pvt_key_file
     })
-    filename = format("%s/%s", abspath(path.root), "provision/inventory.yaml")
+    filename = format("%s/%s", abspath(path.root), "inventory/gce_inventory.yaml")
 }
-
