@@ -1,0 +1,6 @@
+gce_servers:
+    hosts:
+        ${ip} 
+    vars:
+        ansible_ssh_user: ${ssh_user}
+        ansible_ssh_private_key_file: ${ssh_keyfile}

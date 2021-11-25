@@ -34,3 +34,7 @@ override.tf.json
 terraform.rc
 
 .terraform.lock.hcl
+
+# Local Ansible ignores
+/ansible.log
+gce_inventory.yml
