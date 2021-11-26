@@ -35,6 +35,7 @@ terraform.rc
 
 .terraform.lock.hcl
 
-# Local Ansible ignores
+# Local Ansible ignores, we ignore inventory files as generated via Terraform
 /ansible.log
-inventory/*
+inventory/*.yml
+inventory/*.yaml
