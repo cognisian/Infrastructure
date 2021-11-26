@@ -1,0 +1,63 @@
+- name:  Update and Configure Apache2 Servers
+  hosts: gce_servers
+  vars_files:
+    - vars/apache_vh.yml
+
+  tasks:
+    # Apache INSTALL
+    
+    - name:  Ensure Apache2 latest version
+      ansible.builtin.apt:
+        name: apache2
+        state: latest
+  
+    - name:  Create Apache2 document root
+      file:
+        path: "/var/www/html/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+    - name:  Create Apache2 log dir
+      file:
+        path: "/var/log/apache2/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+                  
+    - name:  Setup Apache2 virtual host
+      template:
+        src: "files/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+      notify: Start Apache
+              
+    - name:  Enable site virtual host
+      shell: /usr/sbin/a2ensite {{ http_conf }}
+      notify: Reload Apache
+            
+    - name:  Disable default site virtual host
+      shell: /usr/sbin/a2dissite 000-default.conf
+      when: disable_default
+      notify: Reload Apache
+      
+    - name:  Disable default site SSL virtual host
+      shell: /usr/sbin/a2dissite default-ssl.conf
+      when: disable_default
+      notify: Reload Apache
+          
+  handlers:
+    - name:  Start Apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: started
+        enabled: yes
+        
+    - name:  Reload Apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: reloaded
+    
+    - name:  Restart Apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: restarted

@@ -37,4 +37,4 @@ terraform.rc
 
 # Local Ansible ignores
 /ansible.log
-gce_inventory.yml
+inventory/*

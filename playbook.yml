@@ -1,11 +1,8 @@
-- name:  Update Web Servers
-  hosts: gce_servers
-  vars_files:
-    - provision/vars/apache_vh.yml
-
-  tasks:
+# Update Server software on all hosts with general required packages
+- name:  Update Servers
+  hosts: all
   
-    # Upgrade APT repos cache
+  tasks:
     - name: Update APT repository
       ansible.builtin.apt:
         update_cache: yes
@@ -14,76 +11,19 @@
       ansible.builtin.apt:
         upgrade: yes
 
-    # Install general use packages
     - name: Install general tools
       ansible.builtin.apt:
         state: latest
         name:
+          - dialog
+          - man-db
+          - apt-utils
+          - apt-doc
+          - vim
           - cowsay
           - git
           - sqlite3
 
-    # Apache INSTALL
-    - name:  Ensure Apache HTTP is latest version
-      ansible.builtin.apt:
-        name: apache2
-        state: latest
-  
-    - name:  Create document root
-      file:
-        path: "/var/www/html/{{ http_host }}"
-        state: directory
-        owner: "{{ app_user }}"
-        mode: '0755'
-
-    - name:  Create apache log dir
-      file:
-        path: "/var/log/apache2/{{ http_host }}"
-        state: directory
-        owner: "{{ app_user }}"
-        mode: '0755'
-                  
-    - name:  Setup apache virtual host
-      template:
-        src: "provision/files/apache.conf.j2"
-        dest: "/etc/apache2/sites-available/{{ http_conf }}"
-      notify: Start Apache
-              
-    - name:  Enable new virtual host
-      shell: /usr/sbin/a2ensite {{ http_conf }}
-      notify: Reload Apache
-            
-    - name:  Disable default virtual host
-      shell: /usr/sbin/a2dissite 000-default.conf
-      when: disable_default
-      notify: Reload Apache
-      
-    - name:  Disable default SSL virtual host
-      shell: /usr/sbin/a2dissite default-ssl.conf
-      when: disable_default
-      notify: Reload Apache
-
-    # PHP INSTALL
-    - name: Ensure PHP is latest version
-      ansible.builtin.apt:
-        state: latest
-        name:
-          - php-fpm
-          - php-sqlite3
-          
-  handlers:
-    - name:  Start Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: started
-        enabled: yes
-        
-    - name:  Reload Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: reloaded
-    
-    - name:  Restart Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: restarted
+# Update and Configure Web Server software
+-  import_playbook: provision/apache2.yml
+-  import_playbook: provision/fpm-php.yml

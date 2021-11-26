@@ -1,0 +1,15 @@
+- name:  Update and Configure  PHP Servers
+  hosts: gce_servers
+  vars_files:
+    - vars/apache_vh.yml
+
+  tasks:
+  
+    # PHP INSTALL
+    - name: Update PHP
+      ansible.builtin.apt:
+        state: latest
+        name:
+          - php
+          - php-fpm
+          - php-sqlite3
