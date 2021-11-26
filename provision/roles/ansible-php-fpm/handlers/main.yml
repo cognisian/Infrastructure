@@ -1,0 +1,7 @@
+---
+
+- name: reload php-fpm
+  ansible.builtin.systemd:
+    name: "php{{ php_version }}-fpm"
+    enabled: yes
+    state: reloaded

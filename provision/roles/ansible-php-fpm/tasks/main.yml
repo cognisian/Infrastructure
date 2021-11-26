@@ -1,0 +1,51 @@
+---
+
+- name: Install PHP-FPM
+  apt:
+    name:
+      - "php{{ php_version }}-fpm"
+  tags: php-fpm.install
+
+- name: Install PHP modules
+  apt:
+    name: "php{{ php_version }}-{{ item }}"
+  with_items: "{{ php_modules }}"
+  notify: reload php-fpm
+  tags: php-fpm.install
+
+- name: Remove default FPM pool
+  file:
+    state: absent
+    path: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
+  when: not php_fpm_default_pool_enabled
+  tags: php-fpm.pools
+
+- name: Configure FPM pools
+  template:
+    src: pool.conf.j2
+    dest: "/etc/php/{{ php_version }}/fpm/pool.d/{{ pool.name }}.conf"
+  vars:
+    pool: "{{ php_fpm_pool_defaults | combine(pool_) }}"
+  loop: "{{ php_fpm_pools }}"
+  loop_control:
+    loop_var: pool_
+  notify: reload php-fpm
+  tags: php-fpm.pools
+
+- name: Set PHP options for FPM
+  ini_file:
+    path: /etc/php/{{ php_version }}/fpm/php.ini
+    section: "{{ item.section | default('PHP') }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ php_fpm_ini_options }}"
+  notify: reload php-fpm
+  tags: php-fpm.options
+
+- name: Enable and start PHP-FPM service
+  systemd:
+    name: "php{{ php_version }}-fpm.service"
+    enabled: true
+    state: started
+  tags: php-fpm.install

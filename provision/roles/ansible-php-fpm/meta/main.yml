@@ -1,0 +1,23 @@
+galaxy_info:
+  role_name: php_fpm
+  author: angristan
+  description: Ansible role for PHP-FPM
+  license: MIT
+  min_ansible_version: 2.4
+
+  platforms:
+  - name: Debian
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+
+  galaxy_tags:
+    - php
+    - fpm
+    - web
+    - debian
+    - ubuntu
+
+dependencies: []

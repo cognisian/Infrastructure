@@ -1,0 +1,26 @@
+---
+
+# Options
+php_fpm_ini_options: []
+
+# Default pool
+php_fpm_default_pool_enabled: false
+
+# Pools
+php_fpm_pool_defaults:
+  name: www
+  user: www-data
+  group: www-data
+  pm: dynamic
+  pm_max_children: 5
+  pm_start_servers: 2
+  pm_min_spare_servers: 1
+  pm_max_spare_servers: 3
+  pm_status_path: /status
+  clear_env: true
+  tcp_enabled: false
+  listen_port: 9000
+php_fpm_pools: []
+
+# Modules
+php_modules: []

@@ -1,0 +1,17 @@
+---
+
+- name: test and restart apache2
+  command: apache2ctl configtest
+  notify: restart apache2
+
+- name: test and reload apache2
+  command: apache2ctl configtest
+  notify: reload apache2
+
+- name: restart apache2
+  ansible.builtin.systemd: name=apache2 enabled=yes state=restarted
+  when: apache2_service_state != 'stopped'
+
+- name: reload apache2
+  ansible.builtin.systemd: name=apache2 enabled=yes state=reloaded
+  when: apache2_service_state != 'stopped'

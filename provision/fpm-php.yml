@@ -1,15 +1,19 @@
-- name:  Update and Configure  PHP Servers
+- name: Update and Configure PHP
   hosts: gce_servers
-  vars_files:
-    - vars/apache_vh.yml
-
-  tasks:
-  
-    # PHP INSTALL
-    - name: Update PHP
-      ansible.builtin.apt:
-        state: latest
-        name:
-          - php
-          - php-fpm
-          - php-sqlite3
+  roles: 
+    - ansible-php-fpm
+  vars:
+    php_version: 8.0
+    php_modules:
+      - curl
+      - sqlite3 
+    php_fpm_pools:
+      - name:  www
+        pm_max_children: 3
+        pm_start_servers: 1
+        pm_min_spare_servers: 1
+        pm_max_spare_servers: 2
+    php_fpm_ini_options:
+      - { option: post_max_size, value: 1M }
+      - { option: upload_max_filesize, value: 1M }
+      - { section: opcache, option: opcache.enable, value: 1 }

@@ -1,63 +1,34 @@
 - name:  Update and Configure Apache2 Servers
   hosts: gce_servers
-  vars_files:
-    - vars/apache_vh.yml
-
-  tasks:
-    # Apache INSTALL
-    
-    - name:  Ensure Apache2 latest version
-      ansible.builtin.apt:
-        name: apache2
-        state: latest
-  
-    - name:  Create Apache2 document root
-      file:
-        path: "/var/www/html/{{ http_host }}"
-        state: directory
-        owner: "{{ app_user }}"
-        mode: '0755'
-
-    - name:  Create Apache2 log dir
-      file:
-        path: "/var/log/apache2/{{ http_host }}"
-        state: directory
-        owner: "{{ app_user }}"
-        mode: '0755'
-                  
-    - name:  Setup Apache2 virtual host
-      template:
-        src: "files/apache.conf.j2"
-        dest: "/etc/apache2/sites-available/{{ http_conf }}"
-      notify: Start Apache
-              
-    - name:  Enable site virtual host
-      shell: /usr/sbin/a2ensite {{ http_conf }}
-      notify: Reload Apache
-            
-    - name:  Disable default site virtual host
-      shell: /usr/sbin/a2dissite 000-default.conf
-      when: disable_default
-      notify: Reload Apache
-      
-    - name:  Disable default site SSL virtual host
-      shell: /usr/sbin/a2dissite default-ssl.conf
-      when: disable_default
-      notify: Reload Apache
-          
-  handlers:
-    - name:  Start Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: started
-        enabled: yes
-        
-    - name:  Reload Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: reloaded
-    
-    - name:  Restart Apache
-      ansible.builtin.systemd:
-        name: apache2
-        state: restarted
+  roles:
+    - weareinteractive.openssl
+    - weareinteractive.apache2
+  vars:
+    apache2_modules:
+      - { id: ssl, state: present }
+      - { id: mime, state: present }
+      - { id: headers, state: present }
+      - { id: rewrite, state: present }
+    apache2_remove_default: yes
+    openssl_generate_csr: yes
+    openssl_self_signed:
+      - name: artificialbelligerence
+        country: "CA"
+        state: "Ontario"
+        city: "Toronto"
+        organization: "Cognisian"
+        unit: "Services Unit"
+        email: seandchalmers@yahoo.ca
+    apache2_sites:
+      - id: artificialbelligerence.com
+        name: artificialbelligerence.com
+        state: present
+        rules:
+          - mimes
+          - expires
+          - compression
+        add_webroot: yes
+        ssl:
+          port: 443
+          key_name: artificialbelligerence
+          cert_name: artificialbelligerence

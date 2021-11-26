@@ -1,0 +1,29 @@
+---
+
+- import_tasks: install.yml
+  tags:
+    - web
+    - apache2
+    - install
+    - apache2-install
+
+- import_tasks: config.yml
+  tags:
+    - web
+    - apache2
+    - config
+    - apache2-config
+
+- import_tasks: manage.yml
+  tags:
+    - web
+    - apache2
+    - manage
+    - apache2-manage
+
+- import_tasks: service.yml
+  tags:
+    - web
+    - apache2
+    - service
+    - apache2-service
