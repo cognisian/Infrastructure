@@ -9,6 +9,8 @@
       - { id: mime, state: present }
       - { id: headers, state: present }
       - { id: rewrite, state: present }
+    apache2_confs:
+      - { id: php8.0-fpm, state: present}
     apache2_remove_default: yes
     openssl_generate_csr: yes
     openssl_self_signed:
