@@ -1,7 +1,12 @@
 /**
  *	Contain user supplied values to setup Google Cloud Platform infrastructure
  */
- 
+variable "github_repo_website" {
+    description = "Name of the GitHub repo for deploy of website"
+    type = string
+    default = "cognisian/website"
+}
+
 /**
  * The set of variables to contain User/Project defined values required for configuring
  *  cloud resources
