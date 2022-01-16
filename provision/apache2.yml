@@ -26,9 +26,16 @@
         name: artificialbelligerence.com
         state: present
         rules:
+          - content_transform
           - mimes
           - expires
+          - etag
           - compression
+          - security_file_access
+          - security_hosts
+          - security_mime
+          - security_signiture
+          - security_technology
         add_webroot: yes
         redirect_to_ssl: yes
         ssl:
