@@ -1,3 +1,4 @@
+# ansible-playbook -b -i inventory/gce_inventory.yaml playbook.yml
 # Update Server software on all hosts with general required packages
 - name:  Update Servers
   hosts: all
@@ -23,7 +24,12 @@
           - cowsay
           - git
           - sqlite3
+          - openjdk-17-jre
 
 # Update and Configure Web Server software
 -  import_playbook: provision/apache2.yml
 -  import_playbook: provision/fpm-php.yml
+
+# Update and Configure Python Web software
+
+# Update and Configure Database software
