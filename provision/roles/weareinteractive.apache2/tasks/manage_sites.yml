@@ -1,8 +1,23 @@
 ---
+- name: Read Apache2 envvars
+  shell:
+    cmd: cat /etc/apache2/envvars
+  register: apache2_envvars
+     
+- set_fact:
+    apache_run_user: "{{ apache2_envvars.stdout | regex_search('export APACHE_RUN_USER=([a-zA-Z\\-]+)', '\\1') | first }}"
+- set_fact:
+    apache_run_group: "{{ apache2_envvars.stdout | regex_search('export APACHE_RUN_GROUP=([a-zA-Z\\-]+)', '\\1') | first }}"
 
+- name: Debug
+  debug:
+    msg: Apache2 Run User {{ apache_run_user }} /  Group {{ apache_run_group }}
+    
 - name: Creating webroots
   file:
     dest: "{{ apache2_sites_basedir }}/{{ item.id }}/htdocs"
+    owner: "{{ apache_run_user }}"
+    group: "{{ apache_run_group }}"
     mode: "0755"
     state: directory
   when: item.add_webroot is defined and item.add_webroot

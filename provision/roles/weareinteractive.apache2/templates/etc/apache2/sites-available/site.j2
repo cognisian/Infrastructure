@@ -16,4 +16,7 @@
 
 {% include "site/body.j2" %}
 
+{% if item.redirect_to_ssl is defined and item.redirect_to_ssl %}
+    Redirect permanent / https://{{ item.name }}
+{% endif %} 
 </VirtualHost>

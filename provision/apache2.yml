@@ -30,6 +30,7 @@
           - expires
           - compression
         add_webroot: yes
+        redirect_to_ssl: yes
         ssl:
           port: 443
           key_name: artificialbelligerence
