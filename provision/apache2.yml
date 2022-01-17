@@ -71,3 +71,14 @@
           cert_name: fullchain.pem
     apache2_certs_path: /etc/letsencrypt/live
     apache2_keys_path: /etc/letsencrypt/live
+    
+  tasks:
+    - name: Create anon GitHub Actions local service account
+      ansible.builtin.user:
+        name: runner
+        group: runner
+        append: no
+        groups: 
+          - "{{ apache_run_group }}"
+        comment: Anon GitHub Actions local service account to copy files to website
+    

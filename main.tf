@@ -75,7 +75,10 @@ resource "google_project_iam_custom_role" "gh_deploy_role" {
         "iam.serviceAccounts.actAs",
         "iam.serviceAccounts.getAccessToken",
         "iam.serviceAccounts.getOpenIdToken",
-        "resourcemanager.projects.get"
+        "resourcemanager.projects.get",
+        "compute.instances.get",
+        "compute.projects.get",
+        "compute.instances.setMetadata"
     ]
 }
 
