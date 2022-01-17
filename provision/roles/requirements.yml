@@ -1,6 +1,8 @@
 # ansible-galaxy install -r provision/roles/requirements.yml -p provision/roles/
 - src: weareinteractive.apache2
-- src: weareinteractive.openssl
+- src: https://github.com/geerlingguy/ansible-role-certbot.git
+  version: master
+  name: certbot
 - src: https://github.com/angristan/ansible-php-fpm.git
   version: master
   name: ansible-php-fpm

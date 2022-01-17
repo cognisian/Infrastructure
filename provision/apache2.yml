@@ -1,9 +1,45 @@
 - name:  Update and Configure Apache2 Servers
   hosts: gce_servers
   roles:
-    - weareinteractive.openssl
     - weareinteractive.apache2
+    - certbot
   vars:
+    certbot_testmode: false
+    certbot_create_if_missing: true
+    certbot_create_method: standalone
+    certbot_admin_email: seandchalmers@yahoo.ca
+    
+    certbot_install_method: package
+    certbot_package: python3-certbot
+    set_fact:
+      certbot_script: certbot
+      
+    certbot_create_standalone_stop_services:
+      - apache2
+      
+    certbot_certs:
+      - name: artificialbelligerence.com
+        domains:
+          - artificialbelligerence.com
+          - www.artificialbelligerence.com
+    
+    certbot_create_command: >-
+      {{ certbot_script }} certonly --{{ certbot_create_method  }}
+      {{ '--test-cert' if certbot_testmode else '' }}
+      --noninteractive --agree-tos
+      --email {{ cert_item.email | default(certbot_admin_email) }}
+      {{ '--cert-name ' ~ cert_item.name if cert_item.name is defined
+        else ''
+      }}
+      -d {{ cert_item.domains | join(',') }}
+      {{ '--pre-hook /etc/letsencrypt/renewal-hooks/pre/stop_services'
+        if certbot_create_standalone_stop_services
+        else '' }}
+      {{ '--post-hook /etc/letsencrypt/renewal-hooks/post/start_services'
+        if certbot_create_standalone_stop_services
+        else ''
+      }}
+
     apache2_modules:
       - { id: ssl, state: present }
       - { id: mime, state: present }
@@ -12,15 +48,6 @@
     apache2_confs:
       - { id: php8.0-fpm, state: present}
     apache2_remove_default: yes
-    openssl_generate_csr: yes
-    openssl_self_signed:
-      - name: artificialbelligerence
-        country: "CA"
-        state: "Ontario"
-        city: "Toronto"
-        organization: "Cognisian"
-        unit: "Services Unit"
-        email: seandchalmers@yahoo.ca
     apache2_sites:
       - id: artificialbelligerence.com
         name: artificialbelligerence.com
@@ -40,5 +67,7 @@
         redirect_to_ssl: yes
         ssl:
           port: 443
-          key_name: artificialbelligerence
-          cert_name: artificialbelligerence
+          key_name: privkey.pem
+          cert_name: fullchain.pem
+    apache2_certs_path: /etc/letsencrypt/live
+    apache2_keys_path: /etc/letsencrypt/live

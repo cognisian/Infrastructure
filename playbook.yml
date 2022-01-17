@@ -23,12 +23,13 @@
           - vim
           - cowsay
           - git
+          - cron
           - sqlite3
           - openjdk-17-jre
 
 # Update and Configure Web Server software
--  import_playbook: provision/apache2.yml
 -  import_playbook: provision/fpm-php.yml
+-  import_playbook: provision/apache2.yml
 
 # Update and Configure Python Web software
 
