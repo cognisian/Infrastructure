@@ -178,6 +178,7 @@ resource "google_compute_instance" "webservers" {
     }
     
     metadata = {
+    	block-project-ssh-keys = true
         ssh-keys = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
     }  
 }
