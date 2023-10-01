@@ -3,7 +3,7 @@
   roles: 
     - ansible-php-fpm
   vars:
-    php_version: 8.0
+    php_version: 8.1
     php_modules:
       - curl
       - sqlite3 

@@ -46,7 +46,7 @@
       - { id: headers, state: present }
       - { id: rewrite, state: present }
     apache2_confs:
-      - { id: php8.0-fpm, state: present}
+      - { id: php8.1-fpm, state: present}
     apache2_remove_default: yes
     apache2_sites:
       - id: artificialbelligerence.com
@@ -73,11 +73,18 @@
     apache2_keys_path: /etc/letsencrypt/live
     
   tasks:
+    - name: Change webroot perm to allow group writing
+      file:
+        dest: "{{ apache2_sites_basedir }}/{{ item.id }}/htdocs"
+        mode: "0775"
+      when: item.add_webroot is defined and item.add_webroot
+      with_items: "{{ apache2_sites }}"
+      
     - name: Create anon GitHub Actions local service account
       ansible.builtin.user:
         name: runner
-        group: runner
-        append: no
+        state: present
+        append: false
         groups: 
           - "{{ apache_run_group }}"
         comment: Anon GitHub Actions local service account to copy files to website

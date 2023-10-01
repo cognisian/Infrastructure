@@ -1,11 +1,10 @@
-# BUILD GCP
-# terraform plan -var-file=secrets.tfvars
+
 terraform {
     required_version = ">= 1.0.0"
     required_providers {
         google = {
             source = "hashicorp/google"
-            version = "~> 4.0.0"
+            version = "~> 4.0"
         }
     }
 }
@@ -108,7 +107,7 @@ resource "google_service_account_iam_binding" "gh_deploy_bind" {
 data "google_compute_image" "ubuntu" {
     provider = google
     
-    family = "ubuntu-minimal-2110"
+    family = "ubuntu-minimal-2204-lts"
     project = "ubuntu-os-cloud"
 }
 
@@ -151,7 +150,7 @@ resource "google_compute_instance" "webservers" {
     
     deletion_protection = true
     allow_stopping_for_update = true
-   #  desired_status = "RUNNING" <- change status to stopped to prevent deletion
+   desired_status = "RUNNING" # <- change status to RUNNING to prevent deletion when updating
     
     count = 1
     
@@ -165,6 +164,7 @@ resource "google_compute_instance" "webservers" {
     tags = ["prod", "web"]
     
     boot_disk {
+		auto_delete = true
         initialize_params {
             image = data.google_compute_image.ubuntu.self_link
         }
