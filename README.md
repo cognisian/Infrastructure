@@ -47,7 +47,7 @@ SSH into instance to verify accessible.
 Ansible is ued to manage the software stack.
 
 Update:  
-`ansible-playbook -b -i inventory/gce_inventory.yaml playbook.yml`
+`ansible-playbook -b -i inventory/gce_inventory.yaml playbook.yml`	
 
 ## Load Web Site
 We have web site set in GitHub as an Action to build and deploy to GCP.  
@@ -57,4 +57,3 @@ First generate the website from the ResumeGenerator project:
 `cd <root>/ResumeGenerator`  
 
 `./generate_resume.py -output=~/<root>/website/output/pages/resume.html`.
-

@@ -3,6 +3,13 @@
 <VirtualHost {{ item.ip|default('*') }}:{{item.ssl.port|default(443)}}>
   ServerName {{ value }}
 
+  # CORS
+  <IfModule mod_headers.c>
+    <FilesMatch "\.(eot|otf|tt[cf]|woff2?)$">
+      Header set Access-Control-Allow-Origin "https://www.{{ item.id }}"
+    </FilesMatch>
+  </IfModule>
+  
   {% include "site/ssl.j2" %}
 
   # logging
@@ -11,7 +18,7 @@
   CustomLog /var/log/apache2/access-{{ item.id }}.log combined
 
   # redirect
-  Redirect permanent / https://{{ item.name }}/
+  Redirect permanent / https://www.{{ item.name }}/
 </VirtualHost>
 {% endif %}
 <VirtualHost {{ item.ip|default('*') }}:{{item.port|default(80)}}>
@@ -23,6 +30,6 @@
   CustomLog /var/log/apache2/access-{{ item.id }}.log combined
 
   # redirect
-  Redirect permanent / http://{{ item.name }}/
+  Redirect permanent / https://{{ item.name }}/
 </VirtualHost>
 {% endfor %}
